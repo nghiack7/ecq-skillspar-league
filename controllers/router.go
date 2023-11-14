@@ -1,0 +1,32 @@
+package controllers
+
+import (
+	"log"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+)
+
+type Server struct {
+	svr *http.Server
+	db  *gorm.DB
+}
+
+func (s *Server) StartServer() {
+	log.Fatal(s.svr.ListenAndServe())
+}
+
+func InitServer(db *gorm.DB) *Server {
+	r := gin.Default()
+	s := &Server{svr: &http.Server{}, db: db}
+	s.svr.Handler = r
+	s.svr.Addr = "localhost:8080"
+	s.initRoute(r)
+	return s
+}
+
+func (s *Server) initRoute(r *gin.Engine) {
+	api := r.Group("/api")
+	api.POST("/login", s.LoginHandler)
+}
