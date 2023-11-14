@@ -11,6 +11,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var dbGorm *gorm.DB
+
 func InitDatabase() (*gorm.DB, error) {
 
 	fmt.Println("init database success")
@@ -18,7 +20,7 @@ func InitDatabase() (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	db.AutoMigrate(User{})
+	db.AutoMigrate(User{}, FootBallPlayer{})
 	adimUser := User{
 		UserName: "nghiack7",
 		Role:     "admin",
@@ -31,6 +33,7 @@ func InitDatabase() (*gorm.DB, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	dbGorm = db
 	return db, err
 	// TODO: Init database and connect to database
 }

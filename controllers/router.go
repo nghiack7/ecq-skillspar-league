@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nghiack7/ecq-skillspar-league/middlewares"
 	"gorm.io/gorm"
 )
 
@@ -23,10 +24,15 @@ func InitServer(db *gorm.DB) *Server {
 	s.svr.Handler = r
 	s.svr.Addr = "localhost:8080"
 	s.initRoute(r)
+
 	return s
 }
 
 func (s *Server) initRoute(r *gin.Engine) {
+	r.POST("/login", s.LoginHandler)
 	api := r.Group("/api")
-	api.POST("/login", s.LoginHandler)
+	api.Use(middlewares.RequiredApiKey())
+	api.GET("/match", s.GetListFootball)
+	api.POST("/register", s.RegisterMatch)
+	api.POST("/cancel", s.Cancel)
 }
