@@ -35,4 +35,5 @@ func (s *Server) initRoute(r *gin.Engine) {
 	api.GET("/match", s.GetListFootball)
 	api.POST("/register", s.RegisterMatch)
 	api.POST("/cancel", s.Cancel)
+	api.POST("/update_match", s.UpdateResultMatch)
 }
