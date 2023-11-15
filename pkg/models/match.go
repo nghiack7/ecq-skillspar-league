@@ -11,7 +11,7 @@ type FootBallPlayer struct {
 	PlayerName string `json:"player_name"`
 	UserID     uint   `-`
 	Join       bool   `json:"join"`
-	Team       int32  `json:"team"`
+	Team       int    `json:"team"`
 }
 
 func RegisterMatch(user User) error {
@@ -68,4 +68,35 @@ func ListRegisterFootball() []FootBallPlayer {
 		return nil
 	}
 	return players
+}
+func listTeamPlayers() (map[int][]FootBallPlayer, error) {
+	teamPlayer := make(map[int][]FootBallPlayer)
+	var players []FootBallPlayer
+	err := dbGorm.Where("join=?", true).Find(&players).Error
+	if err != nil {
+		return nil, err
+	}
+	for _, player := range players {
+		teamPlayer[player.Team] = append(teamPlayer[player.Team], player)
+	}
+	return teamPlayer, nil
+}
+
+func ResultMatch(rank map[int]int, totalCredits int64) error {
+	teamPlayer, err := listTeamPlayers()
+	if err != nil {
+		return err
+	}
+	for k, v := range rank {
+		err = updateResultMatch(teamPlayer[k], v)
+		if err != nil {
+			return err
+		}
+		err = updateFundMatch(teamPlayer[k], v, totalCredits)
+		if err != nil {
+			return err
+		}
+	}
+	go CancelAllUser()
+	return nil
 }

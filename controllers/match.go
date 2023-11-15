@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nghiack7/ecq-skillspar-league/pkg/models"
@@ -48,4 +50,29 @@ func (s *Server) Cancel(c *gin.Context) {
 func (s *Server) GetListFootball(c *gin.Context) {
 	players := models.ListRegisterFootball()
 	c.JSON(200, players)
+}
+
+func (s *Server) UpdateResultMatch(c *gin.Context) {
+	rankTeamm, ok := c.GetPostForm("rank")
+	if !ok {
+		c.AbortWithStatusJSON(400, gin.H{"message": "input rank team should be a number"})
+		return
+	}
+	credit, ok := c.GetPostForm("total_credits")
+	if !ok {
+		c.AbortWithStatus(400)
+		return
+	}
+	totalCredit, _ := strconv.ParseInt(credit, 10, 64)
+	team := strings.Split(rankTeamm, ",")
+	rank := make(map[int]int)
+	for i, t := range team {
+		j, _ := strconv.ParseInt(t, 10, 64)
+		rank[int(j)] = i + 1
+	}
+	err := models.ResultMatch(rank, totalCredit)
+	if err != nil {
+		c.AbortWithError(500, err)
+	}
+	c.JSON(200, gin.H{"message": "update data match successfully"})
 }
